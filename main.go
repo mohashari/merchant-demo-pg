@@ -10,13 +10,14 @@ import (
 	"syscall"
 
 	"github.com/go-kit/kit/log"
+	"github.com/joho/godotenv"
 	"github.com/mohashari/merchant-demo/merchant"
 
 	"github.com/go-kit/kit/log/level"
 )
 
 func main() {
-	var httpAddr = flag.String("http", ":8090", "http listen address")
+
 	var logger log.Logger
 	{
 		logger = log.NewLogfmtLogger(os.Stderr)
@@ -29,6 +30,13 @@ func main() {
 	level.Info(logger).Log("msg", "service started")
 	defer level.Info(logger).Log("msg", "service ended")
 
+	loadErr := godotenv.Load()
+	if loadErr != nil {
+		level.Error(logger).Log("msg", "failed to load env")
+	}
+
+	ports := os.Getenv("PORT")
+	var httpAddr = flag.String("http", ":"+ports, "http listen address")
 	flag.Parse()
 
 	ctx := context.Background()
